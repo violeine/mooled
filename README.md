@@ -7,7 +7,7 @@
 
 - raspberry as an access point and websocket server
     - access point act as router(give ip/dns) and gateway for
-    - websocket server to controll esp board
+    - websocket server to controll esp board 
 - esp8266 as websocket client
     - accept and parse message from websocket server
 
