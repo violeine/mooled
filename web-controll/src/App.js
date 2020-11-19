@@ -2,7 +2,7 @@ import "./App.css";
 import { useState, useEffect, useRef } from "react";
 
 const WS_URI = `ws://${window.location.hostname}:3001/ws`;
-function hexToRGB(h) {
+function hexToRGB(h, brightness) {
   let r = 0,
     g = 0,
     b = 0;
@@ -20,11 +20,12 @@ function hexToRGB(h) {
     b = "0x" + h[5] + h[6];
   }
 
-  return { red: +r, green: +g, blue: +b };
+  return { red: +r, green: +g, blue: +b, brightness };
 }
 
 function App() {
   const [color, setColor] = useState(null);
+  const [brightness, setBrightness] = useState(0);
   const ws = useRef(null);
   function connectWebsocket() {
     ws.current = new WebSocket(WS_URI);
@@ -47,7 +48,21 @@ function App() {
         value={color}
         onChange={(e) => {
           setColor(e.target.value);
-          ws.current.send(JSON.stringify(hexToRGB(e.target.value)));
+          ws.current.send(JSON.stringify(hexToRGB(e.target.value, brightness)));
+        }}
+      />
+      <br />
+      <h2>Brightness {brightness}</h2>
+      <input
+        type="range"
+        id="vol"
+        name="vol"
+        min="0"
+        max="255"
+        value={brightness}
+        onChange={(e) => {
+          setBrightness(e.target.value);
+          ws.current.send(JSON.stringify(hexToRGB(color, e.target.value)));
         }}
       />
     </div>
