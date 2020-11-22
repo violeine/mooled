@@ -20,12 +20,12 @@ function hexToRGB(h, brightness) {
     b = "0x" + h[5] + h[6];
   }
 
-  return { red: +r, green: +g, blue: +b, brightness };
+  return { red: +r, green: +g, blue: +b };
 }
 
 function App() {
-  const [color, setColor] = useState(null);
-  const [brightness, setBrightness] = useState(0);
+  const [color, setColor] = useState("#00ffff");
+  const [brightness, setBrightness] = useState(64);
   const ws = useRef(null);
   function connectWebsocket() {
     ws.current = new WebSocket(WS_URI);
@@ -48,7 +48,7 @@ function App() {
         value={color}
         onChange={(e) => {
           setColor(e.target.value);
-          ws.current.send(JSON.stringify(hexToRGB(e.target.value, brightness)));
+          ws.current.send(JSON.stringify(hexToRGB(e.target.value)));
         }}
       />
       <br />
@@ -62,7 +62,11 @@ function App() {
         value={brightness}
         onChange={(e) => {
           setBrightness(e.target.value);
-          ws.current.send(JSON.stringify(hexToRGB(color, e.target.value)));
+          ws.current.send(
+            JSON.stringify({
+              brightness: +e.target.value,
+            })
+          );
         }}
       />
     </div>
