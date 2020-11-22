@@ -54,12 +54,11 @@ ws.onopen = () => {
   if (arrayColors) sendColors(arrayColors);
   if (singleColor) {
     ws.send(JSON.stringify(hexToRGB(singleColor)));
-    process.exit();
   }
   if (brightness) {
     ws.send(JSON.stringify({ brightness }));
-    process.exit();
   }
+  if (brightness || singleColor) process.exit();
 };
 
 //const test = chroma.scale("RdYlBu").colors(400);
