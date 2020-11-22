@@ -1,20 +1,28 @@
 const WebSocket = require("ws");
-const chroma = require("chroma-js");
-const ws = new WebSocket("ws://violpi:3001/ws");
+const ws = new WebSocket("ws://gw.wlan:3001/ws");
 
+const argv = require("minimist")(process.argv.slice(2));
 const { exec } = require("child_process");
 const { pid } = require("process");
 //kill all process except itself
-exec("ps aux | grep 'node client.js'| awk '{print $2}'", (err, stdout, stderr) => {
-  if (err) {
-    console.error("exec error :", err);
-    return;
+
+const arrayColors = argv?.A?.substring(1, argv.A.length - 1)?.split(",");
+const singleColor = argv?.S;
+const brightness = argv?.B;
+console.log(brightness);
+exec(
+  "ps aux | grep 'node client.js'| awk '{print $2}'",
+  (err, stdout, stderr) => {
+    if (err) {
+      console.error("exec error :", err);
+      return;
+    }
+    stdout
+      .split("\n")
+      .filter((el) => el != pid)
+      .forEach((el) => exec(`kill -9 ${el}`));
   }
-  stdout
-    .split("\n")
-    .filter((el) => el != pid)
-    .forEach((el) => exec(`kill -9 ${el}`));
-});
+);
 
 function hexToRGB(h) {
   let r = 0,
@@ -43,21 +51,29 @@ function sleep(ms) {
 
 ws.onopen = () => {
   console.log("connect to ws success");
-  sendColors();
+  if (arrayColors) sendColors(arrayColors);
+  if (singleColor) {
+    ws.send(JSON.stringify(hexToRGB(singleColor)));
+    process.exit();
+  }
+  if (brightness) {
+    ws.send(JSON.stringify({ brightness }));
+    process.exit();
+  }
 };
 
-const test = chroma.scale("RdYlBu").colors(400);
+//const test = chroma.scale("RdYlBu").colors(400);
 
 // test.forEach((el) => ws.send(JSON.stringify(hexToRGB(el))));
 
-async function sendColors() {
+async function sendColors(colors) {
   while (1) {
-    for (let i = 0; i < test.length; i++) {
-      ws.send(JSON.stringify(hexToRGB(test[i])));
+    for (let i = 0; i < colors.length; i++) {
+      ws.send(JSON.stringify(hexToRGB(colors[i])));
       await sleep(50);
     }
-    for (let i = test.length - 1; i >= 0; i--) {
-      ws.send(JSON.stringify(hexToRGB(test[i])));
+    for (let i = colors.length - 1; i >= 0; i--) {
+      ws.send(JSON.stringify(hexToRGB(colors[i])));
       await sleep(50);
     }
   }
