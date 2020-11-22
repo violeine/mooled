@@ -1,41 +1,58 @@
-var fs = require("fs");
-var url = require("url");
 var http = require("http");
 var WebSocket = require("ws");
+var express = require("express");
+var app = express();
+var { exec, execSync } = require("child_process");
+var cors = require("cors");
+var chroma = require("chroma-js");
 // function gửi yêu cầu(response) từ phía server hoặc nhận yêu cầu (request) của client gửi lên
-function requestHandler(request, response) {
-  fs.readFile("./index.html", function (error, content) {
-    response.writeHead(200, {
-      "Content-Type": "text/html",
-    });
-    response.end(content);
-  });
-}
 // create http server
-var server = http.createServer(requestHandler);
+var server = http.createServer(app);
 var ws = new WebSocket.Server({
   server,
+  path: "/ws",
 });
-var clients = [];
 
-function broadcast(socket, data) {
-  console.log(clients.length);
-  for (var i = 0; i < clients.length; i++) {
-    if (clients[i] != socket) {
-      clients[i].send(data);
+var pid;
+
+app.use(cors());
+app.use(express.json());
+app.get("/", (req, res) => {
+  res.send(`<h1> hello world </h1>`);
+});
+
+app.post("/array", (req, res) => {
+  const gradient = chroma.scale(req.body).colors(400);
+  pid = exec(`node client.js -A ${JSON.stringify(gradient)}`).pid;
+  res.send("ok");
+});
+
+app.post("/stop", (req, res) => {
+  res.send("ok");
+  execSync(`kill -9 ${pid + 1}`);
+  exec(
+    `node client.js -S "${req.body.color}" -B ${req.body.brightness}`,
+    (err, out, stderr) => {
+      console.log(err);
     }
+  );
+});
+
+app.post("/weather", (req, res) => {
+  res.send("ok");
+  if (pid) {
+    execSync(`kill -9 ${pid + 1}`);
   }
-}
-ws.on("connection", function (socket, req) {
-  clients.push(socket);
+  console.log(req.body.location);
+  exec(`bash weather.sh ${req.body.location}`);
+});
+ws.on("connection", function (socket) {
   socket.on("message", function (message) {
-    console.log("received: %s", message);
-    broadcast(socket, message);
-  });
-  socket.on("close", function () {
-    var index = clients.indexOf(socket);
-    clients.splice(index, 1);
-    console.log("disconnected");
+    ws.clients.forEach(function (client) {
+      if (client !== socket && client.readyState === WebSocket.OPEN) {
+        client.send(message);
+      }
+    });
   });
 });
 server.listen(3001);
