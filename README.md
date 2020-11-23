@@ -7,7 +7,7 @@
 
 - raspberry as an access point and websocket server
     - access point act as router(give ip/dns) and gateway for
-    - websocket server to controll esp board 
+    - websocket server to control esp board 
 - esp8266 as websocket client
     - accept and parse message from websocket server
 
@@ -18,7 +18,7 @@
 
 - WEMOS D1 R2
 - Raspberry Pi 4 
-- led rgb anode
+- Neopixel Led
 
 ### Software/Library
 
@@ -36,8 +36,21 @@
 - [arduino json (parsing websocket json message)](https://arduinojson.org/v6/example/parser/)
 - [arduino websocket (connect to nodejs websocket)](https://github.com/gilmaimon/ArduinoWebsockets)
 
+## Project Structure
+```
+.
+├── esp8266
+├── README.md
+├── resources
+├── web-controll
+└── websocket
+```
+- [esp8266:](https://github.com/violeine/mooled/tree/main/esp8266) arduino led code
+- [web-control:](https://github.com/violeine/mooled/tree/main/web-control) simple web interface with reactjs
+- [websocket:](https://github.com/violeine/mooled/tree/main/websocket) websocket+http server with ws and express.js and various script to control arduino led
 ## Resources
 
+- [neopixel documentation](https://learn.adafruit.com/adafruit-neopixel-uberguide/arduino-library-use)
 - [led](http://arduino.vn/bai-viet/530-lam-nao-de-dieu-khien-led-rgb-led-3-mau)
 - [websocket](https://hocarm.org/esp8266-web-server-va-client-voi-web-socket/)
 - [esp8266 pin](https://randomnerdtutorials.com/esp8266-pinout-reference-gpios/)
