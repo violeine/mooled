@@ -28,8 +28,12 @@ app.post("/array", (req, res) => {
 });
 
 app.post("/stop", (req, res) => {
+  console.log(req.body, pid);
   res.send("ok");
-  execSync(`kill -9 ${pid + 1}`);
+  if (pid) {
+    execSync(`kill -9 ${pid + 1}`);
+    pid = undefined;
+  }
   exec(
     `node client.js -S "${req.body.color}" -B ${req.body.brightness}`,
     (err, out, stderr) => {
@@ -42,6 +46,7 @@ app.post("/weather", (req, res) => {
   res.send("ok");
   if (pid) {
     execSync(`kill -9 ${pid + 1}`);
+    pid = undefined;
   }
   console.log(req.body.location);
   exec(`bash weather.sh ${req.body.location}`);
