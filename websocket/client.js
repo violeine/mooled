@@ -1,5 +1,5 @@
 const WebSocket = require("ws");
-const ws = new WebSocket("ws://gw.wlan:3001/ws");
+const ws = new WebSocket("ws://localhost:3001/ws");
 
 const argv = require("minimist")(process.argv.slice(2));
 const { exec } = require("child_process");
